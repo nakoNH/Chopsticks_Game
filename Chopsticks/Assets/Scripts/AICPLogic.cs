@@ -33,6 +33,7 @@ public class AICPLogic : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // PLAYING A TURN
         // if turn number is not divisible by 2, let them play turn
         // *if player wants 2nd turn, make sure turnNumber is divisible by 2 instead
         if (TurnLogicGO.GetComponent<TurnLogic>().GetTurnNumber() % 2 == 0)
@@ -41,32 +42,64 @@ public class AICPLogic : MonoBehaviour
             {
                 AddLChopstick();
 
-                // check if hand is more than 4, then destroys all GO under parent
-                if (LCPParent.transform.childCount > 4)
-                {
-                    while (LCPParent.transform.childCount > 0)
-                    {
-                        DestroyImmediate(LCPParent.transform.GetChild(0).gameObject);
-                    }
-                }
+                TurnLogicGO.GetComponent<TurnLogic>().SetTurnNumber();
             }
 
             if (Input.GetKeyDown(KeyCode.L))
             {
                 AddRChopstick();
 
-                // check if hand is more than 4, then destroys all GO under parent
-                if (RCPParent.transform.childCount > 4)
-                {
-                    while (RCPParent.transform.childCount > 0)
-                    {
-                        DestroyImmediate(RCPParent.transform.GetChild(0).gameObject);
-                    }
-                }
+                TurnLogicGO.GetComponent<TurnLogic>().SetTurnNumber();
+            }
+
+/*            CPHandlerGO.transform.GetComponent<CPHandler>()
+                .SetAICPcount(LCPParent.transform.childCount, RCPParent.transform.childCount);*/
+        }
+
+        // BEING TAPPED LOGIC
+        // check if number of children in parent is not equal to new number (after being tapped)
+        if (CPHandlerGO.transform.GetComponent<CPHandler>().GetAILCPcount() != LCPParent.transform.childCount)
+        {
+            int diff = CPHandlerGO.transform.GetComponent<CPHandler>().GetAILCPcount() - LCPParent.transform.childCount;
+
+            for (int i = 0; i < diff; i++)
+            {
+                AddLChopstick();
+            }
+        }
+
+        if (CPHandlerGO.transform.GetComponent<CPHandler>().GetAIRCPcount() != RCPParent.transform.childCount)
+        {
+            int diff = CPHandlerGO.transform.GetComponent<CPHandler>().GetAIRCPcount() - RCPParent.transform.childCount;
+
+            for (int i = 0; i < diff; i++)
+            {
+                AddRChopstick();
+            }
+        }
+
+        // check if LEFT hand is more than 4, then destroys all GO under parent
+        if (LCPParent.transform.childCount > 4)
+        {
+            while (LCPParent.transform.childCount > 0)
+            {
+                DestroyImmediate(LCPParent.transform.GetChild(0).gameObject);
             }
 
             CPHandlerGO.transform.GetComponent<CPHandler>()
-                .SetAICPcount(LCPParent.transform.childCount, RCPParent.transform.childCount);
+                .SetAICPcount(0, CPHandlerGO.transform.GetComponent<CPHandler>().GetAIRCPcount());
+        }
+
+        // check if RIGHT hand is more than 4, then destroys all GO under parent
+        if (RCPParent.transform.childCount > 4)
+        {
+            while (RCPParent.transform.childCount > 0)
+            {
+                DestroyImmediate(RCPParent.transform.GetChild(0).gameObject);
+            }
+
+            CPHandlerGO.transform.GetComponent<CPHandler>()
+                .SetAICPcount(CPHandlerGO.transform.GetComponent<CPHandler>().GetAILCPcount(), 0);
         }
     }
 
@@ -78,8 +111,6 @@ public class AICPLogic : MonoBehaviour
         var newLCP = Instantiate(LCPPrefab, (LCPPrefab.transform.position + LCPOffset), LCPPrefab.transform.localRotation);
         newLCP.SetActive(true);
         newLCP.transform.parent = LCPParent.transform;
-
-        TurnLogicGO.GetComponent<TurnLogic>().SetTurnNumber();
     }
 
     void AddRChopstick()
@@ -90,7 +121,5 @@ public class AICPLogic : MonoBehaviour
         var newRCP = Instantiate(RCPPrefab, (RCPPrefab.transform.position + RCPOffset), RCPPrefab.transform.localRotation);
         newRCP.SetActive(true);
         newRCP.transform.parent = RCPParent.transform;
-
-        TurnLogicGO.GetComponent<TurnLogic>().SetTurnNumber();
     }
 }

@@ -59,9 +59,14 @@ public class CPHandler : MonoBehaviour
         playerCPcount[1] = R;
     }
 
-    public int[] GetAICPcount() 
+    public int GetAILCPcount() 
     {
-        return aiCPcount;
+        return aiCPcount[0];
+    }
+    
+    public int GetAIRCPcount() 
+    {
+        return aiCPcount[1];
     }
 
     public void SetAICPcount(int L, int R)

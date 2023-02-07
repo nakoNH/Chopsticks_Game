@@ -18,10 +18,10 @@ public class PlayerCPLogic : MonoBehaviour
     Vector3 RCPOffset;
 
     [SerializeField]
-    private GameObject TurnLogicGO;
+    private TurnLogic TurnLogicScript;
 
     [SerializeField]
-    private GameObject CPHandlerGO;
+    private CPHandler CPHandlerScript;
 
     // Start is called before the first frame update
     void Start()
@@ -35,7 +35,7 @@ public class PlayerCPLogic : MonoBehaviour
     {
         // if turn number is not divisible by 2, let them play turn
         // *if player wants 2nd turn, make sure turnNumber is divisible by 2 instead
-        if (TurnLogicGO.GetComponent<TurnLogic>().GetTurnNumber() % 2 != 0)
+        if (TurnLogicScript.GetTurnNumber() % 2 != 0)
         {
             if (Input.GetKeyDown(KeyCode.A))
             {
@@ -49,7 +49,10 @@ public class PlayerCPLogic : MonoBehaviour
                     {
                         DestroyImmediate(LCPParent.transform.GetChild(0).gameObject);
                     }
+
+                    CPHandlerScript.SetPlayerCPcount(0, CPHandlerScript.GetAIRCPcount());
                 }
+
             }
 
             if (Input.GetKeyDown(KeyCode.D))
@@ -65,13 +68,16 @@ public class PlayerCPLogic : MonoBehaviour
                     {
                         DestroyImmediate(RCPParent.transform.GetChild(0).gameObject);
                     }
+
+                    CPHandlerScript.SetPlayerCPcount(CPHandlerScript.GetAILCPcount(), 0);
                 }
+
             }
 
             if (Input.GetKeyDown(KeyCode.S))
             {
-                int LCPcount = CPHandlerGO.GetComponent<CPHandler>().GetPlayerLCPcount();
-                int RCPcount = CPHandlerGO.GetComponent<CPHandler>().GetPlayerRCPcount();
+                int LCPcount = CPHandlerScript.GetPlayerLCPcount();
+                int RCPcount = CPHandlerScript.GetPlayerRCPcount();
 
                 if (LCPcount == 0 && RCPcount > 1)
                 {
@@ -83,8 +89,16 @@ public class PlayerCPLogic : MonoBehaviour
                 }
             }
 
-            CPHandlerGO.transform.GetComponent<CPHandler>()
-                .SetPlayerCPcount(LCPParent.transform.childCount, RCPParent.transform.childCount);
+/*            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                CPHandlerScript.SetAICPcount
+                    (CPHandlerScript.GetAILCPcount(), CPHandlerScript.GetPlayerLCPcount() + CPHandlerScript.GetAIRCPcount());
+
+                TurnLogicScript.SetTurnNumber();
+            }*/
+
+            CPHandlerScript.SetPlayerCPcount
+                (LCPParent.transform.childCount, RCPParent.transform.childCount);
         }
     }
 
@@ -97,7 +111,7 @@ public class PlayerCPLogic : MonoBehaviour
         newLCP.SetActive(true);
         newLCP.transform.parent = LCPParent.transform;
 
-        TurnLogicGO.GetComponent<TurnLogic>().SetTurnNumber();
+        TurnLogicScript.SetTurnNumber();
     }
 
     void AddRChopstick()
@@ -109,14 +123,14 @@ public class PlayerCPLogic : MonoBehaviour
         newRCP.SetActive(true);
         newRCP.transform.parent = RCPParent.transform;
 
-        TurnLogicGO.GetComponent<TurnLogic>().SetTurnNumber();
+        TurnLogicScript.SetTurnNumber();
 
         // ^ MIGHT CRASH PC, LOOK AT TASK MANAGER (NVM LOL)
     }
 
     void SplitRHand()
     {
-        int RCPcount = CPHandlerGO.GetComponent<CPHandler>().GetPlayerRCPcount();
+        int RCPcount = CPHandlerScript.GetPlayerRCPcount();
         int tempNo = SplitHandCalc(RCPcount);
 
         while (tempNo != 0)
@@ -131,7 +145,7 @@ public class PlayerCPLogic : MonoBehaviour
 
     void SplitLHand()
     {
-        int LCPcount = CPHandlerGO.GetComponent<CPHandler>().GetPlayerLCPcount();
+        int LCPcount = CPHandlerScript.GetPlayerLCPcount();
         int tempNo = SplitHandCalc(LCPcount);
 
         while (tempNo != 0)
@@ -159,6 +173,32 @@ public class PlayerCPLogic : MonoBehaviour
             int splitNo = handCount % 2;
 
             return splitNo;
+        }
+    }
+
+    // player LEFT HAND tap enemy LEFT HAND
+    public void TapAILCP()
+    {
+        // set ai hand count to lcp + rcp, keep other hand the same
+        if (CPHandlerScript.GetAILCPcount() != 0)
+        {
+            CPHandlerScript.SetAICPcount
+                (CPHandlerScript.GetAILCPcount() + CPHandlerScript.GetPlayerLCPcount(), CPHandlerScript.GetAIRCPcount());
+
+            TurnLogicScript.SetTurnNumber();
+        }
+    }
+
+    // player LEFT HAND tap enemy RIGHT HAND
+    public void TapAIRCP()
+    {
+        // set ai hand count to lcp + rcp, keep other hand the same
+        if (CPHandlerScript.GetAIRCPcount() != 0)
+        {
+            CPHandlerScript.SetAICPcount
+                (CPHandlerScript.GetAILCPcount(), CPHandlerScript.GetPlayerLCPcount() + CPHandlerScript.GetAIRCPcount());
+
+            TurnLogicScript.SetTurnNumber();
         }
     }
 }
