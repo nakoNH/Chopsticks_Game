@@ -23,6 +23,12 @@ public class PlayerCPLogic : MonoBehaviour
     [SerializeField]
     private CPHandler CPHandlerScript;
 
+    [SerializeField]
+    private PrimaryInputLogic PrimaryInputScript;
+    [SerializeField]
+    private SecondaryInputLogic SecondaryInputScript;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -37,43 +43,6 @@ public class PlayerCPLogic : MonoBehaviour
         // *if player wants 2nd turn, make sure turnNumber is divisible by 2 instead
         if (TurnLogicScript.GetTurnNumber() % 2 != 0)
         {
-            if (Input.GetKeyDown(KeyCode.A))
-            {
-                if (LCPParent.transform.childCount != 0)
-                    AddLChopstick();
-
-                // check if hand is more than 4, then destroys all GO under parent
-                if (LCPParent.transform.childCount > 4)
-                {
-                    while (LCPParent.transform.childCount > 0)
-                    {
-                        DestroyImmediate(LCPParent.transform.GetChild(0).gameObject);
-                    }
-
-                    CPHandlerScript.SetPlayerCPcount(0, CPHandlerScript.GetAIRCPcount());
-                }
-
-            }
-
-            if (Input.GetKeyDown(KeyCode.D))
-            {
-                // only add CP if hand is not 0
-                if (RCPParent.transform.childCount != 0)
-                    AddRChopstick();
-
-                // check if hand is more than 4, then destroys all GO under parent
-                if (RCPParent.transform.childCount > 4)
-                {
-                    while (RCPParent.transform.childCount > 0)
-                    {
-                        DestroyImmediate(RCPParent.transform.GetChild(0).gameObject);
-                    }
-
-                    CPHandlerScript.SetPlayerCPcount(CPHandlerScript.GetAILCPcount(), 0);
-                }
-
-            }
-
             if (Input.GetKeyDown(KeyCode.S))
             {
                 int LCPcount = CPHandlerScript.GetPlayerLCPcount();
@@ -89,17 +58,84 @@ public class PlayerCPLogic : MonoBehaviour
                 }
             }
 
-/*            if (Input.GetKeyDown(KeyCode.Q))
+            // player LEFT HAND tapping enemy hands
+            if (PrimaryInputScript.GetLCPSelectedState() == true && SecondaryInputScript.GetAILCPSelectedState() == true)
             {
-                CPHandlerScript.SetAICPcount
-                    (CPHandlerScript.GetAILCPcount(), CPHandlerScript.GetPlayerLCPcount() + CPHandlerScript.GetAIRCPcount());
+                PlayerTapAI(true, CPHandlerScript.GetPlayerLCPcount(), CPHandlerScript.GetAIRCPcount(), CPHandlerScript.GetAILCPcount());
+            }
+            else if (PrimaryInputScript.GetLCPSelectedState() == true && SecondaryInputScript.GetAIRCPSelectedState() == true)
+            {
+                PlayerTapAI(false, CPHandlerScript.GetPlayerLCPcount(), CPHandlerScript.GetAIRCPcount(), CPHandlerScript.GetAILCPcount());
+            }
+            // player RIGHT HAND tapping enemy hands
+            else if (PrimaryInputScript.GetRCPSelectedState() == true && SecondaryInputScript.GetAILCPSelectedState() == true)
+            {
+                PlayerTapAI(true, CPHandlerScript.GetPlayerRCPcount(), CPHandlerScript.GetAILCPcount(), CPHandlerScript.GetAIRCPcount());
 
+            }
+            else if (PrimaryInputScript.GetRCPSelectedState() == true && SecondaryInputScript.GetAIRCPSelectedState() == true)
+            {
+                PlayerTapAI(false, CPHandlerScript.GetPlayerRCPcount(), CPHandlerScript.GetAIRCPcount(), CPHandlerScript.GetAILCPcount());
+            }
+            // player LEFT HAND tapping OTHER HAND
+            else if (PrimaryInputScript.GetLCPSelectedState() == true && SecondaryInputScript.GetPlayerRCPSelectedState() == true)
+            {
+                PlayerTapSelf(false, LCPParent, RCPParent);
                 TurnLogicScript.SetTurnNumber();
-            }*/
+            }
+            // player RIGHT HAND tapping OTHER HAND
+            else if (PrimaryInputScript.GetRCPSelectedState() == true && SecondaryInputScript.GetPlayerLCPSelectedState() == true)
+            {
+                PlayerTapSelf(true, RCPParent, LCPParent);
+            }
 
-            CPHandlerScript.SetPlayerCPcount
-                (LCPParent.transform.childCount, RCPParent.transform.childCount);
+            /*CPHandlerScript.SetPlayerCPcount
+            (LCPParent.transform.childCount, RCPParent.transform.childCount);*/
         }
+
+        // FOR TESTING PURPOSES
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            if (LCPParent.transform.childCount != 0)
+                AddLChopstick();
+
+            // check if hand is more than 4, then destroys all GO under parent
+            if (LCPParent.transform.childCount > 4)
+            {
+                while (LCPParent.transform.childCount > 0)
+                {
+                    DestroyImmediate(LCPParent.transform.GetChild(0).gameObject);
+                }
+
+                CPHandlerScript.SetPlayerCPcount(0, CPHandlerScript.GetAIRCPcount());
+            }
+
+            TurnLogicScript.SetTurnNumber();
+        }
+
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            // only add CP if hand is not 0
+            if (RCPParent.transform.childCount != 0)
+                AddRChopstick();
+
+            // check if hand is more than 4, then destroys all GO under parent
+            if (RCPParent.transform.childCount > 4)
+            {
+                while (RCPParent.transform.childCount > 0)
+                {
+                    DestroyImmediate(RCPParent.transform.GetChild(0).gameObject);
+                }
+
+                CPHandlerScript.SetPlayerCPcount(CPHandlerScript.GetAILCPcount(), 0);
+            }
+
+            TurnLogicScript.SetTurnNumber();
+        }
+
+        CPHandlerScript.SetPlayerCPcount
+            (LCPParent.transform.childCount, RCPParent.transform.childCount);
+        //Debug.Log(PrimaryInputScript.GetLCPSelectedState() + "   " + SecondaryInputScript.GetAILCPSelectedState());
     }
 
     void AddLChopstick()
@@ -111,7 +147,7 @@ public class PlayerCPLogic : MonoBehaviour
         newLCP.SetActive(true);
         newLCP.transform.parent = LCPParent.transform;
 
-        TurnLogicScript.SetTurnNumber();
+        //TurnLogicScript.SetTurnNumber();
     }
 
     void AddRChopstick()
@@ -123,7 +159,7 @@ public class PlayerCPLogic : MonoBehaviour
         newRCP.SetActive(true);
         newRCP.transform.parent = RCPParent.transform;
 
-        TurnLogicScript.SetTurnNumber();
+        //TurnLogicScript.SetTurnNumber();
 
         // ^ MIGHT CRASH PC, LOOK AT TASK MANAGER (NVM LOL)
     }
@@ -177,28 +213,89 @@ public class PlayerCPLogic : MonoBehaviour
     }
 
     // player LEFT HAND tap enemy LEFT HAND
-    public void TapAILCP()
+/*    public void PlayerLCPTapAILCP()
     {
         // set ai hand count to lcp + rcp, keep other hand the same
         if (CPHandlerScript.GetAILCPcount() != 0)
         {
             CPHandlerScript.SetAICPcount
-                (CPHandlerScript.GetAILCPcount() + CPHandlerScript.GetPlayerLCPcount(), CPHandlerScript.GetAIRCPcount());
+                (CPHandlerScript.GetAILCPcount() + CPHandlerScript.GetPlayerLCPcount(),
+                CPHandlerScript.GetAIRCPcount());
 
             TurnLogicScript.SetTurnNumber();
         }
     }
 
     // player LEFT HAND tap enemy RIGHT HAND
-    public void TapAIRCP()
+    public void PlayerLCPTapAIRCP()
     {
         // set ai hand count to lcp + rcp, keep other hand the same
         if (CPHandlerScript.GetAIRCPcount() != 0)
         {
             CPHandlerScript.SetAICPcount
-                (CPHandlerScript.GetAILCPcount(), CPHandlerScript.GetPlayerLCPcount() + CPHandlerScript.GetAIRCPcount());
+                (CPHandlerScript.GetAILCPcount(),
+                CPHandlerScript.GetPlayerLCPcount() + CPHandlerScript.GetAIRCPcount());
 
             TurnLogicScript.SetTurnNumber();
+        }
+    }*/
+
+    public void PlayerTapAI(bool isTappingLeft, int origin, int target, int targetOther)
+    {
+        if (target != 0)
+        {
+            if (!isTappingLeft)
+                CPHandlerScript.SetAICPcount(targetOther, origin + target);
+            else
+                CPHandlerScript.SetAICPcount(origin + target, targetOther);
+
+            TurnLogicScript.SetTurnNumber();
+        }
+    }
+
+    public void PlayerTapSelf(bool isTappingLeft, GameObject origin, GameObject target)
+    {
+        if (target.transform.childCount != 0)
+        {
+            if (isTappingLeft)
+            {
+                // add cp to target hand depending on no. on origin hand
+                for (int i = 0; i < origin.transform.childCount; i++)
+                {
+                    AddLChopstick();
+                }
+
+                // check if target >4, then destroy objects
+                if (target.transform.childCount > 4)
+                {
+                    while (target.transform.childCount > 0)
+                    {
+                        DestroyImmediate(target.transform.GetChild(0).gameObject);
+                    }
+
+                    CPHandlerScript.SetPlayerCPcount(origin.transform.childCount, 0);
+                }
+            }
+            else
+            {
+                // add cp to target hand depending on no. on origin hand
+                for (int i = 0; i < origin.transform.childCount; i++)
+                {
+                    AddRChopstick();
+                    Debug.Log(origin.transform.childCount);
+                }
+
+                // check if target >4, then destroy objects
+                if (target.transform.childCount > 4)
+                {
+                    while (target.transform.childCount > 0)
+                    {
+                        DestroyImmediate(target.transform.GetChild(0).gameObject);
+                    }
+
+                    CPHandlerScript.SetPlayerCPcount(0, origin.transform.childCount);
+                }
+            }
         }
     }
 }

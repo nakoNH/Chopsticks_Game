@@ -51,9 +51,6 @@ public class AICPLogic : MonoBehaviour
 
                 TurnLogicGO.GetComponent<TurnLogic>().SetTurnNumber();
             }
-
-/*            CPHandlerGO.transform.GetComponent<CPHandler>()
-                .SetAICPcount(LCPParent.transform.childCount, RCPParent.transform.childCount);*/
         }
 
         // BEING TAPPED LOGIC
@@ -65,6 +62,7 @@ public class AICPLogic : MonoBehaviour
             for (int i = 0; i < diff; i++)
             {
                 AddLChopstick();
+                Debug.Log(CPHandlerGO.transform.GetComponent<CPHandler>().GetAILCPcount());
             }
         }
 
@@ -75,6 +73,7 @@ public class AICPLogic : MonoBehaviour
             for (int i = 0; i < diff; i++)
             {
                 AddRChopstick();
+                Debug.Log(CPHandlerGO.transform.GetComponent<CPHandler>().GetAIRCPcount());
             }
         }
 
@@ -101,6 +100,9 @@ public class AICPLogic : MonoBehaviour
             CPHandlerGO.transform.GetComponent<CPHandler>()
                 .SetAICPcount(CPHandlerGO.transform.GetComponent<CPHandler>().GetAILCPcount(), 0);
         }
+
+        CPHandlerGO.transform.GetComponent<CPHandler>()
+            .SetAICPcount(LCPParent.transform.childCount, RCPParent.transform.childCount);
     }
 
     void AddLChopstick()
