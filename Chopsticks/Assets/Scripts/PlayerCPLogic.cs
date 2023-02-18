@@ -28,6 +28,11 @@ public class PlayerCPLogic : MonoBehaviour
     [SerializeField]
     private SecondaryInputLogic SecondaryInputScript;
 
+    [SerializeField]
+    private GameObject PrimaryInputGO;
+    [SerializeField]
+    private GameObject SecondaryInputGO;
+
 
     // Start is called before the first frame update
     void Start()
@@ -58,35 +63,59 @@ public class PlayerCPLogic : MonoBehaviour
                 }
             }
 
+            // ==== PLAYER TAPPING ENEMY CONDITIONS ====
             // player LEFT HAND tapping enemy hands
             if (PrimaryInputScript.GetLCPSelectedState() == true && SecondaryInputScript.GetAILCPSelectedState() == true)
             {
                 PlayerTapAI(true, CPHandlerScript.GetPlayerLCPcount(), CPHandlerScript.GetAIRCPcount(), CPHandlerScript.GetAILCPcount());
+
+                // reset bools to false
+                PrimaryInputScript.SetLCPSelectedState();
+                SecondaryInputScript.SetAILCPSelectedState();
             }
             else if (PrimaryInputScript.GetLCPSelectedState() == true && SecondaryInputScript.GetAIRCPSelectedState() == true)
             {
                 PlayerTapAI(false, CPHandlerScript.GetPlayerLCPcount(), CPHandlerScript.GetAIRCPcount(), CPHandlerScript.GetAILCPcount());
+
+                PrimaryInputScript.SetLCPSelectedState();
+                SecondaryInputScript.SetAIRCPSelectedState();
             }
             // player RIGHT HAND tapping enemy hands
             else if (PrimaryInputScript.GetRCPSelectedState() == true && SecondaryInputScript.GetAILCPSelectedState() == true)
             {
                 PlayerTapAI(true, CPHandlerScript.GetPlayerRCPcount(), CPHandlerScript.GetAILCPcount(), CPHandlerScript.GetAIRCPcount());
 
+                PrimaryInputScript.SetRCPSelectedState();
+                SecondaryInputScript.SetAILCPSelectedState();
             }
             else if (PrimaryInputScript.GetRCPSelectedState() == true && SecondaryInputScript.GetAIRCPSelectedState() == true)
             {
                 PlayerTapAI(false, CPHandlerScript.GetPlayerRCPcount(), CPHandlerScript.GetAIRCPcount(), CPHandlerScript.GetAILCPcount());
+
+                PrimaryInputScript.SetRCPSelectedState();
+                SecondaryInputScript.SetAIRCPSelectedState();
             }
+
+            // ==== PLAYER TAPPING SELF CONDITIONS ====
             // player LEFT HAND tapping OTHER HAND
             else if (PrimaryInputScript.GetLCPSelectedState() == true && SecondaryInputScript.GetPlayerRCPSelectedState() == true)
             {
                 PlayerTapSelf(false, LCPParent, RCPParent);
+
+                PrimaryInputScript.SetLCPSelectedState();
+                SecondaryInputScript.SetPlayerRCPSelectedState();
+
                 TurnLogicScript.SetTurnNumber();
             }
             // player RIGHT HAND tapping OTHER HAND
             else if (PrimaryInputScript.GetRCPSelectedState() == true && SecondaryInputScript.GetPlayerLCPSelectedState() == true)
             {
                 PlayerTapSelf(true, RCPParent, LCPParent);
+
+                PrimaryInputScript.SetRCPSelectedState();
+                SecondaryInputScript.SetPlayerLCPSelectedState();
+
+                TurnLogicScript.SetTurnNumber();
             }
 
             /*CPHandlerScript.SetPlayerCPcount

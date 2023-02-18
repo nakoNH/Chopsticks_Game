@@ -1,10 +1,14 @@
 using System.Collections;
+using TMPro;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PrimaryInputLogic : MonoBehaviour
 {
+    [SerializeField]
+    private TextMeshProUGUI PIText;
+
     [SerializeField]
     private Button PlayerLCPButton;
     [SerializeField]
@@ -43,6 +47,11 @@ public class PrimaryInputLogic : MonoBehaviour
     public void SetRCPSelectedState()
     {
         SelectedRCP = !SelectedRCP;
+    }
+
+    public void SetPIText(string x)
+    {
+        PIText.text = x;
     }
 
 }

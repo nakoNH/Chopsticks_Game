@@ -18,10 +18,19 @@ public class AICPLogic : MonoBehaviour
     Vector3 RCPOffset;
 
     [SerializeField]
-    private GameObject TurnLogicGO;
+    private TurnLogic TurnLogicScript;
 
     [SerializeField]
-    private GameObject CPHandlerGO;
+    private CPHandler CPHandlerScript;
+
+    [SerializeField]
+    private GameObject PrimaryInputGO;
+    [SerializeField]
+    private GameObject SecondaryInputGO;
+
+    [SerializeField]
+    private UIHandler UIHandlerScript;
+
 
     // Start is called before the first frame update
     void Start()
@@ -36,44 +45,51 @@ public class AICPLogic : MonoBehaviour
         // PLAYING A TURN
         // if turn number is not divisible by 2, let them play turn
         // *if player wants 2nd turn, make sure turnNumber is divisible by 2 instead
-        if (TurnLogicGO.GetComponent<TurnLogic>().GetTurnNumber() % 2 == 0)
+        if (TurnLogicScript.GetTurnNumber() % 2 == 0)
         {
+            PrimaryInputGO.SetActive(false);
+            SecondaryInputGO.SetActive(false);
+
             if (Input.GetKeyDown(KeyCode.J))
             {
-                AddLChopstick();
+                if (LCPParent.transform.childCount != 0)
+                    AddLChopstick();
 
-                TurnLogicGO.GetComponent<TurnLogic>().SetTurnNumber();
+                UIHandlerScript.activate = true;
+                TurnLogicScript.SetTurnNumber();
             }
 
             if (Input.GetKeyDown(KeyCode.L))
             {
-                AddRChopstick();
+                if (RCPParent.transform.childCount != 0)
+                    AddRChopstick();
 
-                TurnLogicGO.GetComponent<TurnLogic>().SetTurnNumber();
+                UIHandlerScript.activate = true;
+                TurnLogicScript.SetTurnNumber();
             }
         }
 
         // BEING TAPPED LOGIC
         // check if number of children in parent is not equal to new number (after being tapped)
-        if (CPHandlerGO.transform.GetComponent<CPHandler>().GetAILCPcount() != LCPParent.transform.childCount)
+        if (CPHandlerScript.GetAILCPcount() != LCPParent.transform.childCount)
         {
-            int diff = CPHandlerGO.transform.GetComponent<CPHandler>().GetAILCPcount() - LCPParent.transform.childCount;
+            int diff = CPHandlerScript.GetAILCPcount() - LCPParent.transform.childCount;
 
             for (int i = 0; i < diff; i++)
             {
                 AddLChopstick();
-                Debug.Log(CPHandlerGO.transform.GetComponent<CPHandler>().GetAILCPcount());
+                Debug.Log(CPHandlerScript.GetAILCPcount());
             }
         }
 
-        if (CPHandlerGO.transform.GetComponent<CPHandler>().GetAIRCPcount() != RCPParent.transform.childCount)
+        if (CPHandlerScript.GetAIRCPcount() != RCPParent.transform.childCount)
         {
-            int diff = CPHandlerGO.transform.GetComponent<CPHandler>().GetAIRCPcount() - RCPParent.transform.childCount;
+            int diff = CPHandlerScript.GetAIRCPcount() - RCPParent.transform.childCount;
 
             for (int i = 0; i < diff; i++)
             {
                 AddRChopstick();
-                Debug.Log(CPHandlerGO.transform.GetComponent<CPHandler>().GetAIRCPcount());
+                Debug.Log(CPHandlerScript.GetAIRCPcount());
             }
         }
 
@@ -85,8 +101,8 @@ public class AICPLogic : MonoBehaviour
                 DestroyImmediate(LCPParent.transform.GetChild(0).gameObject);
             }
 
-            CPHandlerGO.transform.GetComponent<CPHandler>()
-                .SetAICPcount(0, CPHandlerGO.transform.GetComponent<CPHandler>().GetAIRCPcount());
+            CPHandlerScript
+                .SetAICPcount(0, CPHandlerScript.GetAIRCPcount());
         }
 
         // check if RIGHT hand is more than 4, then destroys all GO under parent
@@ -97,11 +113,11 @@ public class AICPLogic : MonoBehaviour
                 DestroyImmediate(RCPParent.transform.GetChild(0).gameObject);
             }
 
-            CPHandlerGO.transform.GetComponent<CPHandler>()
-                .SetAICPcount(CPHandlerGO.transform.GetComponent<CPHandler>().GetAILCPcount(), 0);
+            CPHandlerScript
+                .SetAICPcount(CPHandlerScript.GetAILCPcount(), 0);
         }
 
-        CPHandlerGO.transform.GetComponent<CPHandler>()
+        CPHandlerScript
             .SetAICPcount(LCPParent.transform.childCount, RCPParent.transform.childCount);
     }
 
